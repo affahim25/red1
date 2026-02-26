@@ -3,262 +3,361 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Members | Red Crescent Araihazar Unit</title>
+  <title>সদস্য | Red Crescent Araihazar Unit</title>
   <link rel="stylesheet" href="./assets/app.css"/>
 
   <style>
-    .container{max-width:1100px;margin:0 auto;padding:16px}
-    .panel{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-    .head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .title{font-weight:900}
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .select,.input{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02);padding:10px 12px;color:inherit;outline:none}
-    .select{min-width:160px}
-    .input{min-width:220px}
-    .tabs{display:flex;gap:8px}
-    .pillBtn{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.02);cursor:pointer;font-weight:700}
-    .pillBtn.active{border-color:rgba(45,212,191,.35);outline:2px solid rgba(45,212,191,.25)}
-    .body{padding:14px}
-    .sec{margin-top:14px}
-    .secTitle{text-align:center;font-weight:900;letter-spacing:.5px;margin:8px 0}
-    .divider{height:1px;background:var(--border);margin:10px 0}
-    .grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;justify-items:center}
-    @media(max-width:1100px){.grid{grid-template-columns:repeat(5,1fr)}}
-    @media(max-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
-    @media(max-width:620px){.grid{grid-template-columns:repeat(3,1fr)}}
-    .card{width:100%;max-width:140px;padding:10px 8px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.02);text-align:center}
-    .avatar{width:62px;height:62px;border-radius:50%;border:2px solid rgba(255,255,255,.18);overflow:hidden;margin:0 auto 8px;background:rgba(255,255,255,.06);display:grid;place-items:center;font-weight:900}
-    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-    .name{font-weight:900;font-size:12.5px;line-height:1.2}
-    .pos{font-size:11px;opacity:.75;margin-top:4px}
-    .state{padding:12px;border-radius:12px;border:1px dashed var(--border);background:rgba(255,255,255,.02);text-align:center;opacity:.85}
+    /* ── Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .panel { border: 1px solid var(--border); background: rgba(255,255,255,.03); border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,.25); overflow: hidden; }
+
+    /* ── Head ── */
+    .head { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .title { font-weight: 900; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .select, .inp { border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,.02); padding: 10px 12px; color: inherit; outline: none; }
+    .select { min-width: 160px; }
+    .inp { min-width: 220px; }
+    .tabs { display: flex; gap: 8px; }
+    .pillBtn { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.02); cursor: pointer; font-weight: 700; color: inherit; }
+    .pillBtn.active { border-color: rgba(45,212,191,.35); outline: 2px solid rgba(45,212,191,.25); }
+
+    /* ── Body ── */
+    .body { padding: 14px; }
+    .sec { margin-top: 18px; }
+    .secTitle { text-align: center; font-weight: 900; letter-spacing: .5px; margin: 8px 0; font-size: 13px; text-transform: uppercase; }
+    .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+    /* ── Grids ── */
+    /* Leader: 1 column centered */
+    .grid-leader { display: flex; justify-content: center; }
+
+    /* Assistant Leader: flex row, 3 slots with fixed width, middle always empty */
+    .grid-al { display: flex; gap: 12px; justify-content: center; align-items: flex-start; }
+    .grid-al .al-slot { width: 140px; flex-shrink: 0; }
+    .grid-al .al-slot.ghost { visibility: hidden; }
+
+    /* Department Chief / Assistant: 6 per row, cards stretch to fill column */
+    .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .grid-6 .card { max-width: 100%; width: 100%; }
+    @media(max-width:1000px){ .grid-6 { grid-template-columns: repeat(4,1fr); } }
+    @media(max-width:700px) { .grid-6 { grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:480px) { .grid-6 { grid-template-columns: repeat(2,1fr); } }
+
+    /* Member grid: 6 per row */
+    .grid-members { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .grid-members .card { max-width: 100%; width: 100%; }
+    @media(max-width:1000px){ .grid-members { grid-template-columns: repeat(4,1fr); } }
+    @media(max-width:700px) { .grid-members { grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:480px) { .grid-members { grid-template-columns: repeat(2,1fr); } }
+
+    /* ── Card ── */
+    .card { width: 100%; max-width: 140px; padding: 10px 8px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.02); text-align: center; }
+    .avatar { width: 62px; height: 62px; border-radius: 50%; border: 2px solid rgba(255,255,255,.18); overflow: hidden; margin: 0 auto 8px; background: rgba(255,255,255,.06); display: grid; place-items: center; font-weight: 900; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .name { font-weight: 900; font-size: 12.5px; line-height: 1.2; }
+    .pos { font-size: 11px; opacity: .75; margin-top: 4px; }
+    .state { padding: 12px; border-radius: 12px; border: 1px dashed var(--border); background: rgba(255,255,255,.02); text-align: center; opacity: .85; }
+
+    /* Footer fix */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .container { flex: 1; }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="panel">
-      <div class="head">
-        <div>
-          <div class="title">সদস্য তালিকা</div>
-          <div style="opacity:.75;font-size:12px">Committee + Volunteer Members</div>
-        </div>
-
-        <div class="controls">
-          <div class="tabs">
-            <button class="pillBtn active" data-unit="upazila">Upazila</button>
-            <button class="pillBtn" data-unit="school">School</button>
-          </div>
-
-          <select id="yearSel" class="select">
-            <option value="active">Current (Active)</option>
-          </select>
-
-          <input id="q" class="input" placeholder="Search: নাম/পদবী…" />
-        </div>
-      </div>
-
-      <div class="body">
-        <div id="state" class="state">Loading…</div>
-
-        <!-- Committee -->
-        <div class="sec" id="committeeWrap" style="display:none;">
-          <div class="secTitle">COMMITTEE</div>
-          <div class="divider"></div>
-
-          <div id="secLeader" class="sec" style="display:none;">
-            <div class="secTitle">LEADER</div>
-            <div class="divider"></div>
-            <div class="grid" id="gLeader"></div>
-          </div>
-
-          <div id="secAL" class="sec" style="display:none;">
-            <div class="secTitle">ASSISTANT LEADER</div>
-            <div class="divider"></div>
-            <div class="grid" id="gAL"></div>
-          </div>
-
-          <div id="secChief" class="sec" style="display:none;">
-            <div class="secTitle">DEPARTMENT CHIEF</div>
-            <div class="divider"></div>
-            <div class="grid" id="gChief"></div>
-          </div>
-
-          <div id="secAsst" class="sec" style="display:none;">
-            <div class="secTitle">DEPARTMENT ASSISTANT</div>
-            <div class="divider"></div>
-            <div class="grid" id="gAsst"></div>
-          </div>
-        </div>
-
-        <!-- Volunteer Members -->
-        <div class="sec" id="membersWrap" style="display:none;">
-          <div class="secTitle">VOLUNTEER MEMBERS</div>
-          <div class="divider"></div>
-          <div class="grid" id="gMembers"></div>
-        </div>
+<!-- ── Top Navigation (same as main site) ── -->
+<div class="topbar">
+  <div class="nav">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1 id="siteName">Red Crescent Araihazar Unit</h1>
+        <p id="siteTag" class="muted">Public Website</p>
       </div>
     </div>
+    <div class="menu">
+      <a class="pill" href="index.html">Home</a>
+      <a class="pill" href="activities.html">কার্যক্রম</a>
+      <a class="pill" href="members.html">সদস্য</a>
+      <a class="pill" href="rules.html">নিয়মাবলী</a>
+      <a class="pill" href="apply.html">নতুন ভলান্টিয়ার</a>
+      <a class="pill" href="contact.html">Contact</a>
+      <a class="pill" href="announcements.html">🔔 Announcement</a>
+      <a class="pill" href="admin/login.html">Admin</a>
+    </div>
   </div>
+</div>
 
-  <script type="module">
-    import { FIREBASE_CONFIG, esc } from "./assets/app.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore, collection, query, where, orderBy, getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<!-- ── Page Content ── -->
+<div class="container">
+  <div class="panel">
 
-    const app = initializeApp(FIREBASE_CONFIG);
-    const db = getFirestore(app);
-
-    const state = document.getElementById("state");
-    const yearSel = document.getElementById("yearSel");
-    const qEl = document.getElementById("q");
-    const tabBtns = [...document.querySelectorAll(".pillBtn")];
-
-    const committeeWrap = document.getElementById("committeeWrap");
-    const membersWrap = document.getElementById("membersWrap");
-
-    const secLeader = document.getElementById("secLeader");
-    const secAL = document.getElementById("secAL");
-    const secChief = document.getElementById("secChief");
-    const secAsst = document.getElementById("secAsst");
-
-    const gLeader = document.getElementById("gLeader");
-    const gAL = document.getElementById("gAL");
-    const gChief = document.getElementById("gChief");
-    const gAsst = document.getElementById("gAsst");
-    const gMembers = document.getElementById("gMembers");
-
-    let unitType = "upazila";
-    let years = []; // [{from,to,label}]
-    let cache = { committee: [], members: [] };
-
-    const norm = s => String(s||"").toLowerCase().trim();
-
-    function card(p){
-      const first = esc((p.name||"?").trim()[0] || "?");
-      const img = p.photoUrl ? `<img src="${esc(p.photoUrl)}" alt="">` : `<span>${first}</span>`;
-      return `
-        <div class="card">
-          <div class="avatar">${img}</div>
-          <div class="name">${esc(p.name||"")}</div>
-          <div class="pos">${esc(p.position||"Volunteer")}</div>
+    <!-- Head -->
+    <div class="head">
+      <div>
+        <div class="title">সদস্য তালিকা</div>
+        <div style="opacity:.75;font-size:12px">Committee + Volunteer Members</div>
+      </div>
+      <div class="controls">
+        <div class="tabs">
+          <button class="pillBtn active" data-unit="upazila">Upazila</button>
+          <button class="pillBtn" data-unit="school">School</button>
         </div>
-      `;
+        <select id="yearSel" class="select">
+          <option value="active">Current (Active)</option>
+        </select>
+        <input id="q" class="inp" placeholder="Search: নাম/পদবী…" />
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+      <div id="state" class="state">Loading…</div>
+
+      <!-- ── COMMITTEE ── -->
+      <div class="sec" id="committeeWrap" style="display:none;">
+        <div class="secTitle">COMMITTEE</div>
+        <div class="divider"></div>
+
+        <!-- Leader: 1 card centered -->
+        <div id="secLeader" class="sec" style="display:none;">
+          <div class="secTitle">LEADER</div>
+          <div class="divider"></div>
+          <div class="grid-leader" id="gLeader"></div>
+        </div>
+
+        <!-- Assistant Leader: 3-col, pos 1 & 3 filled, pos 2 empty -->
+        <div id="secAL" class="sec" style="display:none;">
+          <div class="secTitle">ASSISTANT LEADER</div>
+          <div class="divider"></div>
+          <div class="grid-al" id="gAL"></div>
+        </div>
+
+        <!-- Department Chief: 6 per row -->
+        <div id="secChief" class="sec" style="display:none;">
+          <div class="secTitle">DEPARTMENT CHIEF</div>
+          <div class="divider"></div>
+          <div class="grid-6" id="gChief"></div>
+        </div>
+
+        <!-- Department Assistant: 6 per row -->
+        <div id="secAsst" class="sec" style="display:none;">
+          <div class="secTitle">DEPARTMENT ASSISTANT</div>
+          <div class="divider"></div>
+          <div class="grid-6" id="gAsst"></div>
+        </div>
+      </div>
+
+      <!-- ── VOLUNTEER MEMBERS ── -->
+      <div class="sec" id="membersWrap" style="display:none;">
+        <div class="secTitle">VOLUNTEER MEMBERS</div>
+        <div class="divider"></div>
+        <div class="grid-members" id="gMembers"></div>
+      </div>
+    </div><!-- /body -->
+
+  </div><!-- /panel -->
+
+  <div class="footer" style="margin-top: 40px; text-align: center; padding: 20px 0; border-top: 1px solid var(--border); opacity: .6; font-size: 13px;">© <span id="year"></span> Red Crescent Araihazar Unit</div>
+</div>
+
+<script type="module">
+  import { FIREBASE_CONFIG, esc } from "./assets/app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getFirestore, collection, orderBy, query, getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db  = getFirestore(app);
+
+  const stateEl      = document.getElementById("state");
+  const yearSel      = document.getElementById("yearSel");
+  const qEl          = document.getElementById("q");
+  const tabBtns      = [...document.querySelectorAll(".pillBtn")];
+
+  const committeeWrap = document.getElementById("committeeWrap");
+  const membersWrap   = document.getElementById("membersWrap");
+  const secLeader     = document.getElementById("secLeader");
+  const secAL         = document.getElementById("secAL");
+  const secChief      = document.getElementById("secChief");
+  const secAsst       = document.getElementById("secAsst");
+
+  const gLeader  = document.getElementById("gLeader");
+  const gAL      = document.getElementById("gAL");
+  const gChief   = document.getElementById("gChief");
+  const gAsst    = document.getElementById("gAsst");
+  const gMembers = document.getElementById("gMembers");
+
+  let unitType = "upazila";
+  let years    = [];
+  let cache    = { committee: [], members: [] };
+
+  const norm = s => String(s || "").toLowerCase().trim();
+
+  /* ── Card HTML ── */
+  function card(p) {
+    const first = esc((p.name || "?").trim()[0] || "?");
+    const img   = p.photoUrl
+      ? `<img src="${esc(p.photoUrl)}" alt="">`
+      : `<span>${first}</span>`;
+    return `
+      <div class="card">
+        <div class="avatar">${img}</div>
+        <div class="name">${esc(p.name || "")}</div>
+        <div class="pos">${esc(p.position || "Volunteer")}</div>
+      </div>`;
+  }
+
+  /* ── Filter ── */
+  function applyFilters(list) {
+    const q = norm(qEl.value);
+    return list.filter(x => {
+      const hay = norm(x.name) + " " + norm(x.position) + " " + norm(x.department);
+      return !q || hay.includes(q);
+    });
+  }
+
+  /* ── Render ── */
+  function render() {
+    const mode = yearSel.value;
+    let com = cache.committee.filter(x => x.unitType === unitType);
+    let mem = cache.members.filter(x => x.unitType === unitType);
+
+    if (mode === "active") {
+      com = com.filter(x => x.isActive === true);
+      mem = mem.filter(x => x.isActive === true);
+    } else if (mode.startsWith("y:")) {
+      const [from, to] = mode.slice(2).split("-").map(Number);
+      com = com.filter(x => x.yearFrom === from && x.yearTo === to);
+      mem = mem.filter(x => x.yearFrom === from && x.yearTo === to);
     }
 
-    function applyFilters(list){
-      const q = norm(qEl.value);
-      return list.filter(x=>{
-        const hay = norm(x.name) + " " + norm(x.position) + " " + norm(x.department);
-        return !q || hay.includes(q);
-      });
-    }
+    com = applyFilters(com);
+    mem = applyFilters(mem);
 
-    function render(){
-      const mode = yearSel.value; // active | y:2024-2026
-      let com = cache.committee.filter(x=>x.unitType===unitType);
-      let mem = cache.members.filter(x=>x.unitType===unitType);
+    const leader = com.filter(x => x.position === "Leader");
+    const al     = com.filter(x => x.position === "Assistant Leader");
+    const chief  = com.filter(x => x.position === "Department Chief");
+    const asst   = com.filter(x => x.position === "Department Assistant");
 
-      if(mode === "active"){
-        com = com.filter(x=>x.isActive===true);
-        mem = mem.filter(x=>x.isActive===true);
-      } else if(mode.startsWith("y:")){
-        const [from,to] = mode.slice(2).split("-").map(n=>parseInt(n,10));
-        com = com.filter(x=>x.yearFrom===from && x.yearTo===to);
-        mem = mem.filter(x=>x.yearFrom===from && x.yearTo===to);
+    // clear grids
+    gLeader.innerHTML = "";
+    gAL.innerHTML     = "";
+    gChief.innerHTML  = "";
+    gAsst.innerHTML   = "";
+    gMembers.innerHTML = "";
+
+    const hasAny = com.length || mem.length;
+    stateEl.style.display = hasAny ? "none" : "block";
+    stateEl.textContent = "No data found.";
+
+    committeeWrap.style.display = com.length ? "block" : "none";
+    membersWrap.style.display   = mem.length ? "block" : "none";
+
+    // Leader – 1 card
+    secLeader.style.display = leader.length ? "block" : "none";
+    leader.forEach(p => gLeader.insertAdjacentHTML("beforeend", card(p)));
+
+    // Assistant Leader – 3 fixed slots: [AL1] [ghost] [AL2]
+    secAL.style.display = al.length ? "block" : "none";
+    if (al.length) {
+      // Slot 1: first AL
+      gAL.insertAdjacentHTML("beforeend",
+        `<div class="al-slot">${card(al[0])}</div>`);
+      // Slot 2: ghost (always empty)
+      gAL.insertAdjacentHTML("beforeend",
+        `<div class="al-slot ghost"><div class="card"><div class="avatar"></div></div></div>`);
+      // Slot 3: second AL (if exists)
+      if (al[1]) {
+        gAL.insertAdjacentHTML("beforeend",
+          `<div class="al-slot">${card(al[1])}</div>`);
+      } else {
+        gAL.insertAdjacentHTML("beforeend",
+          `<div class="al-slot ghost"></div>`);
       }
-
-      com = applyFilters(com);
-      mem = applyFilters(mem);
-
-      // group committee
-      const leader = com.filter(x=>x.position==="Leader");
-      const al = com.filter(x=>x.position==="Assistant Leader");
-      const chief = com.filter(x=>x.position==="Department Chief");
-      const asst = com.filter(x=>x.position==="Department Assistant");
-
-      // clear
-      gLeader.innerHTML = ""; gAL.innerHTML=""; gChief.innerHTML=""; gAsst.innerHTML=""; gMembers.innerHTML="";
-
-      const hasAny = com.length || mem.length;
-      state.style.display = hasAny ? "none" : "block";
-      state.textContent = "No data found.";
-
-      committeeWrap.style.display = com.length ? "block" : "none";
-      membersWrap.style.display = mem.length ? "block" : "none";
-
-      secLeader.style.display = leader.length ? "block" : "none";
-      secAL.style.display = al.length ? "block" : "none";
-      secChief.style.display = chief.length ? "block" : "none";
-      secAsst.style.display = asst.length ? "block" : "none";
-
-      leader.forEach(p=>gLeader.insertAdjacentHTML("beforeend", card(p)));
-      al.forEach(p=>gAL.insertAdjacentHTML("beforeend", card(p)));
-      chief.forEach(p=>gChief.insertAdjacentHTML("beforeend", card(p)));
-      asst.forEach(p=>gAsst.insertAdjacentHTML("beforeend", card(p)));
-
-      mem.forEach(p=>gMembers.insertAdjacentHTML("beforeend", card(p)));
+      // Extra ALs (rare) — just append after
+      for (let i = 2; i < al.length; i++) {
+        gAL.insertAdjacentHTML("beforeend",
+          `<div class="al-slot">${card(al[i])}</div>`);
+      }
     }
 
-    function setYearOptions(){
-      // reset options keeping active
-      const keep = yearSel.value;
-      yearSel.innerHTML = `<option value="active">Current (Active)</option>`;
-      years
-        .sort((a,b)=> (b.to-a.to) || (b.from-a.from))
-        .forEach(y=>{
-          yearSel.insertAdjacentHTML("beforeend",
-            `<option value="y:${y.from}-${y.to}">${y.label}</option>`
-          );
-        });
-      yearSel.value = keep && [...yearSel.options].some(o=>o.value===keep) ? keep : "active";
-    }
+    // Department Chief – 6 per row
+    secChief.style.display = chief.length ? "block" : "none";
+    chief.forEach(p => gChief.insertAdjacentHTML("beforeend", card(p)));
 
-    async function loadAll(){
-      state.style.display = "block";
-      state.textContent = "Loading…";
+    // Department Assistant – 6 per row
+    secAsst.style.display = asst.length ? "block" : "none";
+    asst.forEach(p => gAsst.insertAdjacentHTML("beforeend", card(p)));
 
-      // NOTE: orderBy("order") index লাগতে পারে (unitType + isActive/year + order)
-      const comQ = query(collection(db,"committee"), orderBy("order","asc"));
-      const memQ = query(collection(db,"members"), orderBy("createdAt","desc"));
+    // Volunteer Members – 6 per row
+    mem.forEach(p => gMembers.insertAdjacentHTML("beforeend", card(p)));
+  }
 
-      const [comSnap, memSnap] = await Promise.all([getDocs(comQ), getDocs(memQ)]);
-
-      cache.committee = comSnap.docs.map(d=>({id:d.id, ...d.data()}));
-      cache.members = memSnap.docs.map(d=>({id:d.id, ...d.data()}));
-
-      // build year list from both
-      const set = new Map();
-      [...cache.committee, ...cache.members].forEach(x=>{
-        if(typeof x.yearFrom==="number" && typeof x.yearTo==="number"){
-          const key = `${x.yearFrom}-${x.yearTo}`;
-          if(!set.has(key)) set.set(key, {from:x.yearFrom, to:x.yearTo, label:`${x.yearFrom}–${x.yearTo}`});
-        }
+  /* ── Year dropdown ── */
+  function setYearOptions() {
+    const keep = yearSel.value;
+    yearSel.innerHTML = `<option value="active">Current (Active)</option>`;
+    years
+      .sort((a, b) => (b.to - a.to) || (b.from - a.from))
+      .forEach(y => {
+        yearSel.insertAdjacentHTML("beforeend",
+          `<option value="y:${y.from}-${y.to}">${y.label}</option>`);
       });
-      years = [...set.values()];
-      setYearOptions();
+    yearSel.value =
+      keep && [...yearSel.options].some(o => o.value === keep) ? keep : "active";
+  }
+
+  /* ── Load ── */
+  async function loadAll() {
+    stateEl.style.display = "block";
+    stateEl.textContent = "Loading…";
+
+    const comQ = query(collection(db, "committee"), orderBy("order", "asc"));
+    const memQ = query(collection(db, "members"),   orderBy("createdAt", "desc"));
+
+    const [comSnap, memSnap] = await Promise.all([getDocs(comQ), getDocs(memQ)]);
+
+    cache.committee = comSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    cache.members   = memSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Build year list
+    const set = new Map();
+    [...cache.committee, ...cache.members].forEach(x => {
+      if (typeof x.yearFrom === "number" && typeof x.yearTo === "number") {
+        const key = `${x.yearFrom}-${x.yearTo}`;
+        if (!set.has(key))
+          set.set(key, { from: x.yearFrom, to: x.yearTo, label: `${x.yearFrom}–${x.yearTo}` });
+      }
+    });
+    years = [...set.values()];
+    setYearOptions();
+    render();
+  }
+
+  /* ── Events ── */
+  tabBtns.forEach(b => {
+    b.addEventListener("click", () => {
+      tabBtns.forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      unitType = b.dataset.unit;
       render();
-    }
-
-    // events
-    tabBtns.forEach(b=>{
-      b.addEventListener("click", ()=>{
-        tabBtns.forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-        unitType = b.dataset.unit;
-        render();
-      });
     });
-    yearSel.addEventListener("change", render);
-    qEl.addEventListener("input", render);
+  });
+  yearSel.addEventListener("change", render);
+  qEl.addEventListener("input", render);
 
-    loadAll().catch(err=>{
-      console.error(err);
-      state.style.display = "block";
-      state.textContent = err?.message || "Failed to load data.";
-    });
-  </script>
+  loadAll().catch(err => {
+    console.error(err);
+    stateEl.style.display = "block";
+    stateEl.textContent = err?.message || "Failed to load data.";
+  });
+</script>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
