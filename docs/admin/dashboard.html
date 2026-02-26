@@ -453,18 +453,20 @@
 
   // Tabs
   const navBtns = Array.from(document.querySelectorAll(".navbtn"));
-  const tabs = ["overview","home","activities","members","rules","contact","ann","apps"];
+  const tabs = ["overview","home","activities","members","committee","volunteers","rules","contact","ann","apps"];
   function openTab(key){
     tabs.forEach(t => el("tab_"+t).classList.toggle("hidden", t!==key));
     navBtns.forEach(b => b.classList.toggle("active", b.dataset.tab===key));
-    el("title").textContent =
-      key==="overview" ? "Overview" :
-      key==="home" ? "Home Page" :
-      key==="activities" ? "কার্যক্রম" :
-      key==="members" ? "সদস্য" :
-      key==="rules" ? "নিয়মাবলী" :
-      key==="contact" ? "Contact" :
-      key==="ann" ? "Announcements" : "Applications";
+el("title").textContent =
+  key==="overview" ? "Overview" :
+  key==="home" ? "Home Page" :
+  key==="activities" ? "কার্যক্রম" :
+  key==="members" ? "সদস্য" :
+  key==="committee" ? "Committee (15)" :
+  key==="volunteers" ? "Volunteer Members" :
+  key==="rules" ? "নিয়মাবলী" :
+  key==="contact" ? "Contact" :
+  key==="ann" ? "Announcements" : "Applications";
   }
   navBtns.forEach(b => b.addEventListener("click", ()=>openTab(b.dataset.tab)));
 
@@ -488,7 +490,199 @@
     }
     boot();
   });
+// ==================== Committee CRUD ====================
+let editingCmId = null;
 
+function cmReset(){
+  editingCmId=null;
+  el("cmId").textContent="—";
+  el("cmName").value=""; el("cmDept").value="";
+  el("cmFrom").value= new Date().getFullYear();
+  el("cmTo").value= new Date().getFullYear();
+  el("cmActive").value="true";
+  el("cmOrder").value="1";
+  el("cmPhoto").value="";
+  el("cmDelete").classList.add("hidden");
+}
+el("cmReset").addEventListener("click", cmReset);
+
+el("cmSave").addEventListener("click", async ()=>{
+  try{
+    const name = el("cmName").value.trim();
+    if(!name){ toast(msg,"Name প্রয়োজন","bad"); return; }
+
+    const payload = {
+      unitType: el("cmUnit").value,
+      position: el("cmPos").value,
+      department: el("cmDept").value.trim(),
+      name,
+      yearFrom: Number(el("cmFrom").value||0),
+      yearTo: Number(el("cmTo").value||0),
+      isActive: el("cmActive").value === "true",
+      order: Number(el("cmOrder").value||1),
+      updatedAt: serverTimestamp()
+    };
+
+    const f = el("cmPhoto").files?.[0];
+    if(f) payload.photoUrl = await uploadToCloudinary(f);
+
+    if(editingCmId){
+      await updateDoc(doc(db,"committee", editingCmId), payload);
+      toast(msg,"✅ Committee updated","ok");
+    }else{
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db,"committee"), payload);
+      toast(msg,"✅ Committee added","ok");
+    }
+    cmReset();
+  }catch(e){ toast(msg, e.message, "bad"); }
+});
+
+el("cmDelete").addEventListener("click", async ()=>{
+  if(!editingCmId) return;
+  if(!confirm("Delete this committee member?")) return;
+  try{
+    await deleteDoc(doc(db,"committee", editingCmId));
+    toast(msg,"✅ Deleted","ok");
+    cmReset();
+  }catch(e){ toast(msg,e.message,"bad"); }
+});
+
+function watchCommittee(){
+  const tbody = el("cmTbody");
+  onSnapshot(query(collection(db,"committee"), orderBy("order","asc")), (snap)=>{
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    tbody.innerHTML = rows.map(x=>`
+      <tr>
+        <td>${x.photoUrl ? `<img src="${x.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+        <td>${esc(x.name||"—")}</td>
+        <td>${esc(x.position||"—")}</td>
+        <td>${esc((x.yearFrom??"—")+"–"+(x.yearTo??"—"))}</td>
+        <td>${x.isActive ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
+        <td>${esc(String(x.order??""))}</td>
+        <td><button class="btn" data-edit="${x.id}">Edit</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="7" class="muted">No committee data</td></tr>`;
+
+    tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+      const id = b.dataset.edit;
+      const it = rows.find(r=>r.id===id);
+      if(!it) return;
+      editingCmId=id;
+      el("cmId").textContent=id;
+      el("cmUnit").value = it.unitType || "upazila";
+      el("cmPos").value = it.position || "Leader";
+      el("cmDept").value = it.department || "";
+      el("cmName").value = it.name || "";
+      el("cmFrom").value = it.yearFrom ?? new Date().getFullYear();
+      el("cmTo").value = it.yearTo ?? new Date().getFullYear();
+      el("cmActive").value = it.isActive ? "true" : "false";
+      el("cmOrder").value = it.order ?? 1;
+      el("cmDelete").classList.remove("hidden");
+      openTab("committee");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+  });
+}
+
+// ==================== Volunteer Members CRUD ====================
+let editingVmId = null;
+
+function vmReset(){
+  editingVmId=null;
+  el("vmId").textContent="—";
+  el("vmName").value=""; el("vmPhone").value="";
+  el("vmPos").value="Volunteer";
+  el("vmFrom").value= new Date().getFullYear();
+  el("vmTo").value= new Date().getFullYear();
+  el("vmActive").value="true";
+  el("vmPhoto").value="";
+  el("vmDelete").classList.add("hidden");
+}
+el("vmReset").addEventListener("click", vmReset);
+
+el("vmSave").addEventListener("click", async ()=>{
+  try{
+    const name = el("vmName").value.trim();
+    if(!name){ toast(msg,"Name প্রয়োজন","bad"); return; }
+
+    const position = (el("vmPos").value||"Volunteer").trim() || "Volunteer";
+    const isActive = el("vmActive").value === "true";
+
+    // NOTE: existing members tab ভাঙবে না—role/status/joinedDate set করে দিচ্ছি।
+    const payload = {
+      unitType: el("vmUnit").value,
+      position,
+      yearFrom: Number(el("vmFrom").value||0),
+      yearTo: Number(el("vmTo").value||0),
+      isActive,
+      name,
+      phone: el("vmPhone").value.trim(),
+      role: position,                      // compatibility
+      status: isActive ? "active":"inactive",
+      joinedDate: new Date().toISOString().slice(0,10),
+      updatedAt: serverTimestamp()
+    };
+
+    const f = el("vmPhoto").files?.[0];
+    if(f) payload.photoUrl = await uploadToCloudinary(f);
+
+    if(editingVmId){
+      await updateDoc(doc(db,"members", editingVmId), payload);
+      toast(msg,"✅ Volunteer updated","ok");
+    }else{
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db,"members"), payload);
+      toast(msg,"✅ Volunteer added","ok");
+    }
+    vmReset();
+  }catch(e){ toast(msg, e.message, "bad"); }
+});
+
+el("vmDelete").addEventListener("click", async ()=>{
+  if(!editingVmId) return;
+  if(!confirm("Delete this volunteer?")) return;
+  try{
+    await deleteDoc(doc(db,"members", editingVmId));
+    toast(msg,"✅ Deleted","ok");
+    vmReset();
+  }catch(e){ toast(msg,e.message,"bad"); }
+});
+
+function watchVolunteers(){
+  const tbody = el("vmTbody");
+  onSnapshot(query(collection(db,"members"), orderBy("createdAt","desc")), (snap)=>{
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    tbody.innerHTML = rows.map(x=>`
+      <tr>
+        <td>${x.photoUrl ? `<img src="${x.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+        <td>${esc(x.name||"—")}</td>
+        <td>${esc(x.position || x.role || "Volunteer")}</td>
+        <td>${esc((x.yearFrom??"—")+"–"+(x.yearTo??"—"))}</td>
+        <td>${x.isActive ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
+        <td><button class="btn" data-edit="${x.id}">Edit</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" class="muted">No volunteer members</td></tr>`;
+
+    tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+      const id = b.dataset.edit;
+      const it = rows.find(r=>r.id===id);
+      if(!it) return;
+      editingVmId=id;
+      el("vmId").textContent=id;
+      el("vmUnit").value = it.unitType || "upazila";
+      el("vmPos").value = it.position || it.role || "Volunteer";
+      el("vmName").value = it.name || "";
+      el("vmPhone").value = it.phone || "";
+      el("vmFrom").value = it.yearFrom ?? new Date().getFullYear();
+      el("vmTo").value = it.yearTo ?? new Date().getFullYear();
+      el("vmActive").value = it.isActive ? "true" : "false";
+      el("vmDelete").classList.remove("hidden");
+      openTab("volunteers");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+  });
+}
   // OVERVIEW counters
   function watchKPIs(){
     onSnapshot(collection(db,"members"), (snap)=> el("kMembers").textContent = String(snap.size));
