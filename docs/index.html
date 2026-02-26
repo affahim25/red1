@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Home | Bangladesh Red Crescent Socity</title>
+  <link rel="stylesheet" href="./assets/app.css">
+<script type="module" src="./assets/app.js"></script>
+  
+</head>
+<body>
+<div class="topbar">
+  <div class="nav">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1 id="siteName">Bangladesh Red Crescent Socity</h1>
+        <p id="siteTag" class="muted">Araihazar Upazila,Narayanaganj Unit</p>
+      </div>
+    </div>
+    <div class="menu">
+      <a class="pill" href="index.html">Home</a>
+      <a class="pill" href="activities.html">কার্যক্রম</a>
+      <a class="pill" href="members.html">সদস্য</a>
+      <a class="pill" href="rules.html">নিয়মাবলী</a>
+      <a class="pill" href="apply.html">নতুন ভলান্টিয়ার</a>
+      <a class="pill" href="contact.html">Contact</a>
+      <a class="pill" href="announcements.html">🔔 Announcement</a>
+      <a class="pill" href="./admin/login.html">Admin</a>
+    </div>
+  </div>
+</div>
+<div class="container">
+
+  <div class="row">
+    <div class="card col-12">
+      <h2 id="homeTitle" style="text-align:center;">লোড হচ্ছে…</h2>
+      <p id="homeSubtitle" class="muted" style="text-align:center;">—</p>
+      <div class="hr"></div>
+      <img id="homeBanner" alt="Banner" style="width:100%; border-radius:16px; border:1px solid var(--border); display:none"/>
+      <div id="homeSections" class="row" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card col-12">
+      <h3>Latest Announcements</h3>
+      <div id="annList" class="row"></div>
+      <div class="small muted" style="margin-top:10px;">মেনুবারের Announcement থেকে সব নোটিশ দেখুন।</div>
+    </div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { FIREBASE_CONFIG, esc, fmtDate } from "./assets/app.js";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db = getFirestore(app);
+
+  async function loadHome(){
+    const snap = await getDoc(doc(db, "site", "home"));
+    const data = snap.exists() ? snap.data() : {};
+    document.getElementById("homeTitle").textContent = data.title || "Bangladesh Red Crescent Socity";
+    document.getElementById("homeSubtitle").textContent = data.subtitle || "আপনার এলাকার সেবা ও স্বেচ্ছাসেবার প্ল্যাটফর্ম";
+
+    const banner = document.getElementById("homeBanner");
+    if(data.bannerImageUrl){
+      banner.src = data.bannerImageUrl;
+      banner.style.display = "block";
+    }
+
+    const sections = Array.isArray(data.sections) ? data.sections : [];
+    const wrap = document.getElementById("homeSections");
+    wrap.innerHTML = sections.map(s => `
+      <div class="card col-4">
+        <h3>${esc(s.title || "Section")}</h3>
+        <div class="muted">${esc(s.text || "")}</div>
+      </div>
+    `).join("") || `<div class="muted">Admin panel থেকে Home sections যোগ করুন।</div>`;
+  }
+
+  async function loadAnnouncements(){
+    const q = query(collection(db, "announcements"), where("isActive","==",true), orderBy("date","desc"), limit(6));
+    const snap = await getDocs(q);
+    const items = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const box = document.getElementById("annList");
+    box.innerHTML = items.map(a => `
+      <div class="card col-4">
+        <div class="badge warn">Notice</div>
+        <div style="margin-top:10px; font-weight:800">${esc(a.title || "—")}</div>
+        <div class="muted small" style="margin-top:6px">${esc(a.body || "").slice(0,140)}${(a.body||"").length>140?"…":""}</div>
+        <div class="small muted" style="margin-top:10px">Date: ${fmtDate(a.date)}</div>
+      </div>
+    `).join("") || `<div class="muted">No announcements.</div>`;
+  }
+
+  loadHome();
+  loadAnnouncements();
+</script>
+  <div class="footer">© <span id="year"></span> Bangladesh Red Crescent Socity,Araihazr Upazila</div>
+</div>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body></html>
