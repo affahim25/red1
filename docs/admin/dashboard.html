@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../assets/app.css"/>
+  <style>
+    .app{display:grid; grid-template-columns: 280px 1fr; min-height:100vh}
+    .side{
+      border-right:1px solid var(--border);
+      background: rgba(16,26,46,.75);
+      backdrop-filter: blur(10px);
+      padding:16px;
+      position: sticky;
+      top:0;
+      height:100vh;
+      overflow:auto;
+    }
+    .navbtn{
+      width:100%;
+      text-align:left;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      cursor:pointer;
+      transition:.15s;
+      margin-bottom:8px;
+    }
+    .navbtn:hover{transform: translateY(-1px); border-color: rgba(79,140,255,.35)}
+    .navbtn.active{background: rgba(79,140,255,.12); border-color: rgba(79,140,255,.55)}
+    .main{padding:18px}
+    .top{display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:12px}
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
+    @media(max-width: 980px){
+      .app{grid-template-columns: 1fr}
+      .side{height:auto; position:relative}
+      .grid2{grid-template-columns: 1fr}
+    }
+    code{background: rgba(255,255,255,.06); padding:2px 6px; border-radius:8px; border:1px solid var(--border)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand" style="margin-bottom:12px;">
+      <div class="logo"></div>
+      <div>
+        <h1>Admin Panel</h1>
+        <p class="muted">Firestore + Cloudinary</p>
+      </div>
+    </div>
+
+    <div class="pill" style="margin-bottom:10px;"><span class="badge ok">Login</span> <span id="userEmail" class="muted">—</span></div>
+
+    <button class="navbtn active" data-tab="overview">🏠 Overview</button>
+    <button class="navbtn" data-tab="home">🧩 Home Page</button>
+    <button class="navbtn" data-tab="activities">📌 কার্যক্রম</button>
+    <button class="navbtn" data-tab="members">👥 সদস্য</button>
+    <button class="navbtn" data-tab="committee">🏛️ Committee (15)</button>
+    <button class="navbtn" data-tab="volunteers">🙋 Volunteer Members</button>
+    <button class="navbtn" data-tab="rules">📜 নিয়মাবলী</button>
+    <button class="navbtn" data-tab="contact">☎️ Contact</button>
+    <button class="navbtn" data-tab="ann">🔔 Announcements</button>
+    <button class="navbtn" data-tab="apps">📝 Applications</button>
+
+    <div class="hr"></div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a class="btn" href="../public/index.html">Public Site</a>
+      <button class="btn danger" id="logout">Logout</button>
+    </div>
+
+    <div class="hr"></div>
+    <div class="small muted">
+      <b>Admin check:</b> <code>admins/{uid}</code> ডকুমেন্ট থাকতে হবে।
+      <br/><b>Images:</b> Cloudinary (Unsigned preset) ব্যবহার হবে, API Secret লাগবে না।
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <h2 id="title">Overview</h2>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <span class="pill">Cloud: <b>dqe832ooh</b></span>
+        <span class="pill">Preset: <b>yrxhbi0</b></span>
+      </div>
+    </div>
+
+    <div id="msg" class="card hidden" style="background: rgba(255,255,255,.03)"></div>
+
+    <!-- OVERVIEW -->
+    <section id="tab_overview" class="row">
+      <div class="card kpi">
+        <h3>Total Members</h3>
+        <div class="val" id="kMembers">0</div>
+      </div>
+      <div class="card kpi">
+        <h3>Pending Applications</h3>
+        <div class="val" id="kPending">0</div>
+      </div>
+      <div class="card kpi">
+        <h3>Active Announcements</h3>
+        <div class="val" id="kAnn">0</div>
+      </div>
+
+      <div class="card col-12">
+        <h3>Quick links</h3>
+        <div class="row">
+          <div class="card col-4" style="background: rgba(255,255,255,.03)">
+            <div class="badge warn">Tip</div>
+            <div style="margin-top:10px; font-weight:800">Home banner/sections update করুন</div>
+            <div class="muted small" style="margin-top:6px;">Home Page tab থেকে title/subtitle/banner/sections edit করুন।</div>
+          </div>
+          <div class="card col-4" style="background: rgba(255,255,255,.03)">
+            <div class="badge warn">Tip</div>
+            <div style="margin-top:10px; font-weight:800">Applications accept করুন</div>
+            <div class="muted small" style="margin-top:6px;">Applications tab থেকে pending আবেদন Accept/Reject করুন।</div>
+          </div>
+          <div class="card col-4" style="background: rgba(255,255,255,.03)">
+            <div class="badge warn">Tip</div>
+            <div style="margin-top:10px; font-weight:800">Activities add করুন</div>
+            <div class="muted small" style="margin-top:6px;">কার্যক্রম tab থেকে নতুন কার্যক্রম যোগ করুন।</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME -->
+    <section id="tab_home" class="row hidden">
+      <div class="card col-12">
+        <h3>Home Content (Firestore: site/home)</h3>
+        <div class="grid2">
+          <div>
+            <div class="field">
+              <label>Title</label>
+              <input id="homeTitle" />
+            </div>
+            <div class="field">
+              <label>Subtitle</label>
+              <input id="homeSubtitle" />
+            </div>
+            <div class="field">
+              <label>Banner Image (optional)</label>
+              <input id="homeBannerFile" type="file" accept="image/*"/>
+              <div class="small muted">Upload করলে Cloudinary তে যাবে, তারপর URL সেভ হবে।</div>
+            </div>
+            <button class="btn primary" id="saveHome">Save Home</button>
+          </div>
+
+          <div class="card" style="background: rgba(255,255,255,.03)">
+            <h3>Sections (max 6)</h3>
+            <div class="small muted">Format: JSON array</div>
+            <textarea id="homeSections" placeholder='[{"title":"...", "text":"..."}]'></textarea>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="small muted">Public site: <code>public/index.html</code></div>
+      </div>
+    </section>
+
+    <!-- ACTIVITIES -->
+    <section id="tab_activities" class="row hidden">
+      <div class="card col-12">
+        <h3>Add / Edit Activity</h3>
+        <div class="grid2">
+          <div>
+            <div class="field"><label>Title</label><input id="actTitle"/></div>
+            <div class="field"><label>Description</label><textarea id="actDesc"></textarea></div>
+            <div class="field"><label>Date</label><input id="actDate" type="date"/></div>
+            <div class="field">
+              <label>Cover image (optional)</label>
+              <input id="actCover" type="file" accept="image/*"/>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn primary" id="saveAct">Save</button>
+              <button class="btn" id="resetAct">Reset</button>
+              <button class="btn danger hidden" id="delAct">Delete</button>
+            </div>
+            <div class="small muted" style="margin-top:10px;">Editing ID: <span id="actId">—</span></div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table>
+              <thead><tr><th>Title</th><th>Date</th><th>Cover</th><th>Action</th></tr></thead>
+              <tbody id="actTbody"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEMBERS -->
+    <section id="tab_members" class="row hidden">
+      <div class="card col-12">
+        <h3>Add / Edit Member</h3>
+        <div class="grid2">
+          <div>
+            <div class="field"><label>Name</label><input id="mName"/></div>
+            <div class="field"><label>Role</label><input id="mRole"/></div>
+            <div class="field"><label>Phone</label><input id="mPhone"/></div>
+            <div class="field">
+              <label>Status</label>
+              <select id="mStatus">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="field"><label>Joined Date</label><input id="mJoin" type="date"/></div>
+            <div class="field"><label>Photo (optional)</label><input id="mPhoto" type="file" accept="image/*"/></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn primary" id="saveMember">Save</button>
+              <button class="btn" id="resetMember">Reset</button>
+              <button class="btn danger hidden" id="delMember">Delete</button>
+            </div>
+            <div class="small muted" style="margin-top:10px;">Editing ID: <span id="mId">—</span></div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table>
+              <thead><tr><th>Photo</th><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="mTbody"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab_committee" class="row hidden">
+  <div class="card col-12">
+    <h3>Committee Manager (Firestore: committee)</h3>
+
+    <div class="grid2">
+      <div>
+        <div class="field"><label>Unit Type</label>
+          <select id="cmUnit">
+            <option value="upazila">Upazila</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Position</label>
+          <select id="cmPos">
+            <option>Leader</option>
+            <option>Assistant Leader</option>
+            <option>Department Chief</option>
+            <option>Department Assistant</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Department (optional)</label><input id="cmDept" placeholder="Health / Rescue / ..."/></div>
+        <div class="field"><label>Name</label><input id="cmName"/></div>
+
+        <div class="grid2">
+          <div class="field"><label>Year From</label><input id="cmFrom" type="number" value="2026"/></div>
+          <div class="field"><label>Year To</label><input id="cmTo" type="number" value="2026"/></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label>Active</label>
+            <select id="cmActive">
+              <option value="true">true (Current)</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+          <div class="field"><label>Order</label><input id="cmOrder" type="number" value="1"/></div>
+        </div>
+
+        <div class="field"><label>Photo (optional)</label><input id="cmPhoto" type="file" accept="image/*"/></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="cmSave">Save</button>
+          <button class="btn" id="cmReset">Reset</button>
+          <button class="btn danger hidden" id="cmDelete">Delete</button>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">Editing ID: <span id="cmId">—</span></div>
+      </div>
+
+      <div style="overflow:auto;">
+        <table>
+          <thead><tr><th>Photo</th><th>Name</th><th>Position</th><th>Years</th><th>Active</th><th>Order</th><th>Action</th></tr></thead>
+          <tbody id="cmTbody"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <section id="tab_volunteers" class="row hidden">
+  <div class="card col-12">
+    <h3>Volunteer Members Manager (Firestore: members)</h3>
+    <p class="muted small">এটা তোমার existing “সদস্য” tab বদলাবে না—এখান থেকে year/active/unit সহ নতুনভাবে ম্যানেজ হবে।</p>
+
+    <div class="grid2">
+      <div>
+        <div class="field"><label>Unit Type</label>
+          <select id="vmUnit">
+            <option value="upazila">Upazila</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Position</label><input id="vmPos" value="Volunteer"/></div>
+        <div class="field"><label>Name</label><input id="vmName"/></div>
+        <div class="field"><label>Phone (optional)</label><input id="vmPhone"/></div>
+
+        <div class="grid2">
+          <div class="field"><label>Year From</label><input id="vmFrom" type="number" value="2026"/></div>
+          <div class="field"><label>Year To</label><input id="vmTo" type="number" value="2026"/></div>
+        </div>
+
+        <div class="field"><label>Active</label>
+          <select id="vmActive">
+            <option value="true">true (Current)</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Photo (optional)</label><input id="vmPhoto" type="file" accept="image/*"/></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="vmSave">Save</button>
+          <button class="btn" id="vmReset">Reset</button>
+          <button class="btn danger hidden" id="vmDelete">Delete</button>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">Editing ID: <span id="vmId">—</span></div>
+      </div>
+
+      <div style="overflow:auto;">
+        <table>
+          <thead><tr><th>Photo</th><th>Name</th><th>Position</th><th>Years</th><th>Active</th><th>Action</th></tr></thead>
+          <tbody id="vmTbody"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- RULES -->
+    <section id="tab_rules" class="row hidden">
+      <div class="card col-12">
+        <h3>Rules (Firestore: site/rules)</h3>
+        <div class="field">
+          <label>Rules content (plain text)</label>
+          <textarea id="rulesContent" placeholder="নিয়মাবলী লিখুন..."></textarea>
+        </div>
+        <button class="btn primary" id="saveRules">Save Rules</button>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="tab_contact" class="row hidden">
+      <div class="card col-12">
+        <h3>Contact (Firestore: site/contact)</h3>
+        <div class="grid2">
+          <div>
+            <div class="field"><label>Phone</label><input id="cPhone"/></div>
+            <div class="field"><label>Email</label><input id="cEmail"/></div>
+            <div class="field"><label>Address</label><input id="cAddress"/></div>
+          </div>
+          <div>
+            <div class="field"><label>Map URL (iframe src)</label><input id="cMapUrl" placeholder="https://www.google.com/maps/embed?..."/></div>
+            <div class="small muted">Google Maps → Share → Embed a map → src কপি করুন।</div>
+          </div>
+        </div>
+        <button class="btn primary" id="saveContact">Save Contact</button>
+      </div>
+    </section>
+
+    <!-- ANNOUNCEMENTS -->
+    <section id="tab_ann" class="row hidden">
+      <div class="card col-12">
+        <h3>Add / Edit Announcement</h3>
+        <div class="grid2">
+          <div>
+            <div class="field"><label>Title</label><input id="aTitle"/></div>
+            <div class="field"><label>Body</label><textarea id="aBody"></textarea></div>
+            <div class="field"><label>Date</label><input id="aDate" type="date"/></div>
+            <div class="field">
+              <label>Active?</label>
+              <select id="aActive">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn primary" id="saveAnn">Save</button>
+              <button class="btn" id="resetAnn">Reset</button>
+              <button class="btn danger hidden" id="delAnn">Delete</button>
+            </div>
+            <div class="small muted" style="margin-top:10px;">Editing ID: <span id="aId">—</span></div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table>
+              <thead><tr><th>Title</th><th>Date</th><th>Active</th><th>Action</th></tr></thead>
+              <tbody id="aTbody"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPLICATIONS -->
+    <section id="tab_apps" class="row hidden">
+      <div class="card col-12">
+        <h3>Volunteer Applications</h3>
+        <p class="muted">Public apply page থেকে আসা আবেদনগুলো এখানে pending থাকবে। Accept করলে members এ যাবে।</p>
+        <div class="hr"></div>
+
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Why</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="appTbody"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc,
+    collection, query, where, orderBy, onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { FIREBASE_CONFIG, esc, fmtDate, toast, uploadToCloudinary } from "../assets/app.js";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const el = (id)=>document.getElementById(id);
+  const msg = el("msg");
+
+  // Tabs
+  const navBtns = Array.from(document.querySelectorAll(".navbtn"));
+  const tabs = ["overview","home","activities","members","committee","volunteers","rules","contact","ann","apps"];
+  function openTab(key){
+    tabs.forEach(t => el("tab_"+t).classList.toggle("hidden", t!==key));
+    navBtns.forEach(b => b.classList.toggle("active", b.dataset.tab===key));
+el("title").textContent =
+  key==="overview" ? "Overview" :
+  key==="home" ? "Home Page" :
+  key==="activities" ? "কার্যক্রম" :
+  key==="members" ? "সদস্য" :
+  key==="committee" ? "Committee (15)" :
+  key==="volunteers" ? "Volunteer Members" :
+  key==="rules" ? "নিয়মাবলী" :
+  key==="contact" ? "Contact" :
+  key==="ann" ? "Announcements" : "Applications";
+  }
+  navBtns.forEach(b => b.addEventListener("click", ()=>openTab(b.dataset.tab)));
+
+  // Admin gate
+  async function ensureAdmin(user){
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    return adminDoc.exists();
+  }
+
+  el("logout").addEventListener("click", ()=>signOut(auth));
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(!user){ location.href="login.html"; return; }
+    el("userEmail").textContent = user.email || "—";
+    const ok = await ensureAdmin(user);
+    if(!ok){
+      await signOut(auth);
+      alert("আপনি admin নন। Firestore → admins collection এ আপনার UID যোগ করুন।");
+      location.href="login.html";
+      return;
+    }
+    boot();
+  });
+// ==================== Committee CRUD ====================
+let editingCmId = null;
+
+function cmReset(){
+  editingCmId=null;
+  el("cmId").textContent="—";
+  el("cmName").value=""; el("cmDept").value="";
+  el("cmFrom").value= new Date().getFullYear();
+  el("cmTo").value= new Date().getFullYear();
+  el("cmActive").value="true";
+  el("cmOrder").value="1";
+  el("cmPhoto").value="";
+  el("cmDelete").classList.add("hidden");
+}
+el("cmReset").addEventListener("click", cmReset);
+
+el("cmSave").addEventListener("click", async ()=>{
+  try{
+    const name = el("cmName").value.trim();
+    if(!name){ toast(msg,"Name প্রয়োজন","bad"); return; }
+
+    const payload = {
+      unitType: el("cmUnit").value,
+      position: el("cmPos").value,
+      department: el("cmDept").value.trim(),
+      name,
+      yearFrom: Number(el("cmFrom").value||0),
+      yearTo: Number(el("cmTo").value||0),
+      isActive: el("cmActive").value === "true",
+      order: Number(el("cmOrder").value||1),
+      updatedAt: serverTimestamp()
+    };
+
+    const f = el("cmPhoto").files?.[0];
+    if(f) payload.photoUrl = await uploadToCloudinary(f);
+
+    if(editingCmId){
+      await updateDoc(doc(db,"committee", editingCmId), payload);
+      toast(msg,"✅ Committee updated","ok");
+    }else{
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db,"committee"), payload);
+      toast(msg,"✅ Committee added","ok");
+    }
+    cmReset();
+  }catch(e){ toast(msg, e.message, "bad"); }
+});
+
+el("cmDelete").addEventListener("click", async ()=>{
+  if(!editingCmId) return;
+  if(!confirm("Delete this committee member?")) return;
+  try{
+    await deleteDoc(doc(db,"committee", editingCmId));
+    toast(msg,"✅ Deleted","ok");
+    cmReset();
+  }catch(e){ toast(msg,e.message,"bad"); }
+});
+
+function watchCommittee(){
+  const tbody = el("cmTbody");
+  onSnapshot(query(collection(db,"committee"), orderBy("order","asc")), (snap)=>{
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    tbody.innerHTML = rows.map(x=>`
+      <tr>
+        <td>${x.photoUrl ? `<img src="${x.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+        <td>${esc(x.name||"—")}</td>
+        <td>${esc(x.position||"—")}</td>
+        <td>${esc((x.yearFrom??"—")+"–"+(x.yearTo??"—"))}</td>
+        <td>${x.isActive ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
+        <td>${esc(String(x.order??""))}</td>
+        <td><button class="btn" data-edit="${x.id}">Edit</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="7" class="muted">No committee data</td></tr>`;
+
+    tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+      const id = b.dataset.edit;
+      const it = rows.find(r=>r.id===id);
+      if(!it) return;
+      editingCmId=id;
+      el("cmId").textContent=id;
+      el("cmUnit").value = it.unitType || "upazila";
+      el("cmPos").value = it.position || "Leader";
+      el("cmDept").value = it.department || "";
+      el("cmName").value = it.name || "";
+      el("cmFrom").value = it.yearFrom ?? new Date().getFullYear();
+      el("cmTo").value = it.yearTo ?? new Date().getFullYear();
+      el("cmActive").value = it.isActive ? "true" : "false";
+      el("cmOrder").value = it.order ?? 1;
+      el("cmDelete").classList.remove("hidden");
+      openTab("committee");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+  });
+}
+
+// ==================== Volunteer Members CRUD ====================
+let editingVmId = null;
+
+function vmReset(){
+  editingVmId=null;
+  el("vmId").textContent="—";
+  el("vmName").value=""; el("vmPhone").value="";
+  el("vmPos").value="Volunteer";
+  el("vmFrom").value= new Date().getFullYear();
+  el("vmTo").value= new Date().getFullYear();
+  el("vmActive").value="true";
+  el("vmPhoto").value="";
+  el("vmDelete").classList.add("hidden");
+}
+el("vmReset").addEventListener("click", vmReset);
+
+el("vmSave").addEventListener("click", async ()=>{
+  try{
+    const name = el("vmName").value.trim();
+    if(!name){ toast(msg,"Name প্রয়োজন","bad"); return; }
+
+    const position = (el("vmPos").value||"Volunteer").trim() || "Volunteer";
+    const isActive = el("vmActive").value === "true";
+
+    // NOTE: existing members tab ভাঙবে না—role/status/joinedDate set করে দিচ্ছি।
+    const payload = {
+      unitType: el("vmUnit").value,
+      position,
+      yearFrom: Number(el("vmFrom").value||0),
+      yearTo: Number(el("vmTo").value||0),
+      isActive,
+      name,
+      phone: el("vmPhone").value.trim(),
+      role: position,                      // compatibility
+      status: isActive ? "active":"inactive",
+      joinedDate: new Date().toISOString().slice(0,10),
+      updatedAt: serverTimestamp()
+    };
+
+    const f = el("vmPhoto").files?.[0];
+    if(f) payload.photoUrl = await uploadToCloudinary(f);
+
+    if(editingVmId){
+      await updateDoc(doc(db,"members", editingVmId), payload);
+      toast(msg,"✅ Volunteer updated","ok");
+    }else{
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db,"members"), payload);
+      toast(msg,"✅ Volunteer added","ok");
+    }
+    vmReset();
+  }catch(e){ toast(msg, e.message, "bad"); }
+});
+
+el("vmDelete").addEventListener("click", async ()=>{
+  if(!editingVmId) return;
+  if(!confirm("Delete this volunteer?")) return;
+  try{
+    await deleteDoc(doc(db,"members", editingVmId));
+    toast(msg,"✅ Deleted","ok");
+    vmReset();
+  }catch(e){ toast(msg,e.message,"bad"); }
+});
+
+function watchVolunteers(){
+  const tbody = el("vmTbody");
+  onSnapshot(query(collection(db,"members"), orderBy("createdAt","desc")), (snap)=>{
+    const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    tbody.innerHTML = rows.map(x=>`
+      <tr>
+        <td>${x.photoUrl ? `<img src="${x.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+        <td>${esc(x.name||"—")}</td>
+        <td>${esc(x.position || x.role || "Volunteer")}</td>
+        <td>${esc((x.yearFrom??"—")+"–"+(x.yearTo??"—"))}</td>
+        <td>${x.isActive ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
+        <td><button class="btn" data-edit="${x.id}">Edit</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" class="muted">No volunteer members</td></tr>`;
+
+    tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+      const id = b.dataset.edit;
+      const it = rows.find(r=>r.id===id);
+      if(!it) return;
+      editingVmId=id;
+      el("vmId").textContent=id;
+      el("vmUnit").value = it.unitType || "upazila";
+      el("vmPos").value = it.position || it.role || "Volunteer";
+      el("vmName").value = it.name || "";
+      el("vmPhone").value = it.phone || "";
+      el("vmFrom").value = it.yearFrom ?? new Date().getFullYear();
+      el("vmTo").value = it.yearTo ?? new Date().getFullYear();
+      el("vmActive").value = it.isActive ? "true" : "false";
+      el("vmDelete").classList.remove("hidden");
+      openTab("volunteers");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }));
+  });
+}
+  // OVERVIEW counters
+  function watchKPIs(){
+    onSnapshot(collection(db,"members"), (snap)=> el("kMembers").textContent = String(snap.size));
+    onSnapshot(query(collection(db,"applications"), where("status","==","pending")), (snap)=> el("kPending").textContent = String(snap.size));
+    onSnapshot(query(collection(db,"announcements"), where("isActive","==",true)), (snap)=> el("kAnn").textContent = String(snap.size));
+  }
+
+  // HOME
+  async function loadHome(){
+    const snap = await getDoc(doc(db,"site","home"));
+    const data = snap.exists()? snap.data(): {};
+    el("homeTitle").value = data.title || "";
+    el("homeSubtitle").value = data.subtitle || "";
+    el("homeSections").value = JSON.stringify(Array.isArray(data.sections)? data.sections : [], null, 2);
+  }
+
+  el("saveHome").addEventListener("click", async ()=>{
+    try{
+      let bannerImageUrl = null;
+      const file = el("homeBannerFile").files?.[0];
+      if(file){
+        bannerImageUrl = await uploadToCloudinary(file);
+      }
+
+      let sections = [];
+      try{ sections = JSON.parse(el("homeSections").value || "[]"); }catch{ sections = []; }
+
+      const payload = {
+        title: el("homeTitle").value.trim(),
+        subtitle: el("homeSubtitle").value.trim(),
+        sections: Array.isArray(sections) ? sections.slice(0,6) : [],
+        updatedAt: serverTimestamp()
+      };
+      if(bannerImageUrl) payload.bannerImageUrl = bannerImageUrl;
+
+      await setDoc(doc(db,"site","home"), payload, { merge:true });
+      toast(msg, "✅ Home saved", "ok");
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+
+  // ACTIVITIES
+  let editingActId = null;
+  function resetAct(){
+    editingActId = null;
+    el("actId").textContent = "—";
+    el("actTitle").value=""; el("actDesc").value=""; el("actDate").value="";
+    el("actCover").value="";
+    el("delAct").classList.add("hidden");
+  }
+  el("resetAct").addEventListener("click", resetAct);
+
+  el("saveAct").addEventListener("click", async ()=>{
+    try{
+      const title = el("actTitle").value.trim();
+      if(!title){ toast(msg, "Title প্রয়োজন", "bad"); return; }
+      const desc = el("actDesc").value.trim();
+      const date = el("actDate").value || new Date().toISOString().slice(0,10);
+
+      let coverUrl = null;
+      const file = el("actCover").files?.[0];
+      if(file){ coverUrl = await uploadToCloudinary(file); }
+
+      const payload = { title, desc, date, updatedAt: serverTimestamp() };
+      if(coverUrl) payload.coverUrl = coverUrl;
+
+      if(editingActId){
+        await updateDoc(doc(db,"activities", editingActId), payload);
+        toast(msg, "✅ Activity updated", "ok");
+      }else{
+        payload.createdAt = serverTimestamp();
+        await addDoc(collection(db,"activities"), payload);
+        toast(msg, "✅ Activity added", "ok");
+      }
+      resetAct();
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+
+  el("delAct").addEventListener("click", async ()=>{
+    if(!editingActId) return;
+    if(!confirm("Delete this activity?")) return;
+    try{
+      await deleteDoc(doc(db,"activities", editingActId));
+      toast(msg, "✅ Deleted", "ok");
+      resetAct();
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+
+  function watchActivities(){
+    const tbody = el("actTbody");
+    onSnapshot(query(collection(db,"activities"), orderBy("date","desc")), (snap)=>{
+      const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      tbody.innerHTML = rows.map(a=>`
+        <tr>
+          <td>${esc(a.title||"—")}</td>
+          <td>${esc(a.date||"—")}</td>
+          <td>${a.coverUrl ? `<img src="${a.coverUrl}" style="width:58px;height:42px;object-fit:cover;border-radius:12px;border:1px solid var(--border)"/>` : "—"}</td>
+          <td>
+            <button class="btn" data-edit="${a.id}">Edit</button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="4" class="muted">No activities</td></tr>`;
+
+      tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+        const id = b.dataset.edit;
+        const a = rows.find(x=>x.id===id);
+        if(!a) return;
+        editingActId = id;
+        el("actId").textContent = id;
+        el("actTitle").value = a.title||"";
+        el("actDesc").value = a.desc||"";
+        el("actDate").value = a.date||"";
+        el("delAct").classList.remove("hidden");
+        openTab("activities");
+        window.scrollTo({top:0,behavior:"smooth"});
+      }));
+    });
+  }
+
+  // MEMBERS
+  let editingMemberId = null;
+  function resetMember(){
+    editingMemberId=null;
+    el("mId").textContent="—";
+    el("mName").value=""; el("mRole").value=""; el("mPhone").value="";
+    el("mStatus").value="active";
+    el("mJoin").value = new Date().toISOString().slice(0,10);
+    el("mPhoto").value="";
+    el("delMember").classList.add("hidden");
+  }
+  el("resetMember").addEventListener("click", resetMember);
+
+  el("saveMember").addEventListener("click", async ()=>{
+    try{
+      const name = el("mName").value.trim();
+      if(!name){ toast(msg,"Name প্রয়োজন","bad"); return; }
+
+      const payload = {
+        name,
+        role: el("mRole").value.trim(),
+        phone: el("mPhone").value.trim(),
+        status: el("mStatus").value,
+        joinedDate: el("mJoin").value || new Date().toISOString().slice(0,10),
+        updatedAt: serverTimestamp()
+      };
+
+      const file = el("mPhoto").files?.[0];
+      if(file){
+        payload.photoUrl = await uploadToCloudinary(file);
+      }
+
+      if(editingMemberId){
+        await updateDoc(doc(db,"members", editingMemberId), payload);
+        toast(msg,"✅ Member updated","ok");
+      }else{
+        payload.createdAt = serverTimestamp();
+        await addDoc(collection(db,"members"), payload);
+        toast(msg,"✅ Member added","ok");
+      }
+      resetMember();
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+
+  el("delMember").addEventListener("click", async ()=>{
+    if(!editingMemberId) return;
+    if(!confirm("Delete this member?")) return;
+    try{
+      await deleteDoc(doc(db,"members", editingMemberId));
+      toast(msg,"✅ Deleted","ok");
+      resetMember();
+    }catch(e){ toast(msg, e.message, "bad"); }
+  });
+
+  function watchMembers(){
+    const tbody = el("mTbody");
+    onSnapshot(query(collection(db,"members"), orderBy("joinedDate","desc")), (snap)=>{
+      const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      tbody.innerHTML = rows.map(m=>`
+        <tr>
+          <td>${m.photoUrl ? `<img src="${m.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+          <td>${esc(m.name||"—")}</td>
+          <td>${esc(m.role||"—")}</td>
+          <td><span class="badge ${String(m.status).toLowerCase()==="active"?"ok":"bad"}">${String(m.status||"inactive").toUpperCase()}</span></td>
+          <td><button class="btn" data-edit="${m.id}">Edit</button></td>
+        </tr>
+      `).join("") || `<tr><td colspan="5" class="muted">No members</td></tr>`;
+
+      tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+        const id = b.dataset.edit;
+        const m = rows.find(x=>x.id===id);
+        if(!m) return;
+        editingMemberId = id;
+        el("mId").textContent = id;
+        el("mName").value = m.name||"";
+        el("mRole").value = m.role||"";
+        el("mPhone").value = m.phone||"";
+        el("mStatus").value = (m.status||"active").toLowerCase();
+        el("mJoin").value = m.joinedDate || new Date().toISOString().slice(0,10);
+        el("delMember").classList.remove("hidden");
+        openTab("members");
+        window.scrollTo({top:0,behavior:"smooth"});
+      }));
+    });
+  }
+
+  // RULES
+  async function loadRules(){
+    const snap = await getDoc(doc(db,"site","rules"));
+    const data = snap.exists()? snap.data() : {};
+    el("rulesContent").value = data.content || "";
+  }
+  el("saveRules").addEventListener("click", async ()=>{
+    try{
+      await setDoc(doc(db,"site","rules"), { content: el("rulesContent").value, updatedAt: serverTimestamp() }, { merge:true });
+      toast(msg,"✅ Rules saved","ok");
+    }catch(e){ toast(msg,e.message,"bad"); }
+  });
+
+  // CONTACT
+  async function loadContact(){
+    const snap = await getDoc(doc(db,"site","contact"));
+    const d = snap.exists()? snap.data(): {};
+    el("cPhone").value = d.phone||"";
+    el("cEmail").value = d.email||"";
+    el("cAddress").value = d.address||"";
+    el("cMapUrl").value = d.mapUrl||"";
+  }
+  el("saveContact").addEventListener("click", async ()=>{
+    try{
+      await setDoc(doc(db,"site","contact"), {
+        phone: el("cPhone").value.trim(),
+        email: el("cEmail").value.trim(),
+        address: el("cAddress").value.trim(),
+        mapUrl: el("cMapUrl").value.trim(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+      toast(msg,"✅ Contact saved","ok");
+    }catch(e){ toast(msg,e.message,"bad"); }
+  });
+
+  // ANNOUNCEMENTS
+  let editingAnnId = null;
+  function resetAnn(){
+    editingAnnId=null;
+    el("aId").textContent="—";
+    el("aTitle").value=""; el("aBody").value="";
+    el("aDate").value = new Date().toISOString().slice(0,10);
+    el("aActive").value="true";
+    el("delAnn").classList.add("hidden");
+  }
+  el("resetAnn").addEventListener("click", resetAnn);
+
+  el("saveAnn").addEventListener("click", async ()=>{
+    try{
+      const title = el("aTitle").value.trim();
+      if(!title){ toast(msg,"Title প্রয়োজন","bad"); return; }
+      const payload = {
+        title,
+        body: el("aBody").value.trim(),
+        date: el("aDate").value || new Date().toISOString().slice(0,10),
+        isActive: el("aActive").value === "true",
+        updatedAt: serverTimestamp()
+      };
+      if(editingAnnId){
+        await updateDoc(doc(db,"announcements", editingAnnId), payload);
+        toast(msg,"✅ Announcement updated","ok");
+      }else{
+        payload.createdAt = serverTimestamp();
+        await addDoc(collection(db,"announcements"), payload);
+        toast(msg,"✅ Announcement added","ok");
+      }
+      resetAnn();
+    }catch(e){ toast(msg, e.message, "bad"); }
+  });
+
+  el("delAnn").addEventListener("click", async ()=>{
+    if(!editingAnnId) return;
+    if(!confirm("Delete this announcement?")) return;
+    try{
+      await deleteDoc(doc(db,"announcements", editingAnnId));
+      toast(msg,"✅ Deleted","ok");
+      resetAnn();
+    }catch(e){ toast(msg,e.message,"bad"); }
+  });
+
+  function watchAnnouncements(){
+    const tbody = el("aTbody");
+    onSnapshot(query(collection(db,"announcements"), orderBy("date","desc")), (snap)=>{
+      const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      tbody.innerHTML = rows.map(a=>`
+        <tr>
+          <td>${esc(a.title||"—")}</td>
+          <td>${esc(a.date||"—")}</td>
+          <td>${a.isActive ? `<span class="badge ok">Active</span>` : `<span class="badge bad">Inactive</span>`}</td>
+          <td><button class="btn" data-edit="${a.id}">Edit</button></td>
+        </tr>
+      `).join("") || `<tr><td colspan="4" class="muted">No announcements</td></tr>`;
+
+      tbody.querySelectorAll("[data-edit]").forEach(b=> b.addEventListener("click", ()=>{
+        const id = b.dataset.edit;
+        const a = rows.find(x=>x.id===id);
+        if(!a) return;
+        editingAnnId=id;
+        el("aId").textContent=id;
+        el("aTitle").value=a.title||"";
+        el("aBody").value=a.body||"";
+        el("aDate").value=a.date||new Date().toISOString().slice(0,10);
+        el("aActive").value = a.isActive ? "true" : "false";
+        el("delAnn").classList.remove("hidden");
+        openTab("ann");
+        window.scrollTo({top:0,behavior:"smooth"});
+      }));
+    });
+  }
+
+  // APPLICATIONS
+  function watchApplications(){
+    const tbody = el("appTbody");
+    onSnapshot(query(collection(db,"applications"), orderBy("createdAt","desc")), (snap)=>{
+      const rows = snap.docs.map(d=>({id:d.id, ...d.data()}));
+
+      tbody.innerHTML = rows.map(a=>`
+        <tr>
+          <td>${a.photoUrl ? `<img src="${a.photoUrl}" style="width:44px;height:44px;border-radius:14px;border:1px solid var(--border);object-fit:cover">`:"—"}</td>
+          <td>${esc(a.name||"—")}</td>
+          <td>${esc(a.phone||"—")}</td>
+          <td>${esc(a.address||"—")}</td>
+          <td class="muted small">${esc(a.whyJoin||"")}</td>
+          <td>${statusBadge(a.status)}</td>
+          <td>
+            ${a.status==="pending" ? `
+              <button class="btn primary" data-acc="${a.id}">Accept</button>
+              <button class="btn danger" data-rej="${a.id}">Reject</button>
+            ` : "—"}
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="7" class="muted">No applications</td></tr>`;
+
+      tbody.querySelectorAll("[data-acc]").forEach(b=> b.addEventListener("click", ()=>acceptApp(b.dataset.acc, rows)));
+      tbody.querySelectorAll("[data-rej]").forEach(b=> b.addEventListener("click", ()=>rejectApp(b.dataset.rej)));
+    });
+  }
+
+  function statusBadge(s){
+    const v = (s||"pending").toLowerCase();
+    if(v==="pending") return `<span class="badge warn">Pending</span>`;
+    if(v==="accepted") return `<span class="badge ok">Accepted</span>`;
+    return `<span class="badge bad">Rejected</span>`;
+  }
+
+  async function acceptApp(id, rows){
+    const appRow = rows.find(x=>x.id===id);
+    if(!appRow) return;
+    if(!confirm("Accept this application?")) return;
+
+    try{
+      // 1) mark application accepted
+      await updateDoc(doc(db,"applications", id), { status:"accepted", reviewedAt: serverTimestamp() });
+
+      // 2) create member
+      await addDoc(collection(db,"members"), {
+        name: appRow.name || "",
+        phone: appRow.phone || "",
+        role: "Volunteer",
+        status: "active",
+        joinedDate: new Date().toISOString().slice(0,10),
+        photoUrl: appRow.photoUrl || "",
+        sourceApplicationId: id,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      toast(msg, "✅ Accepted & added to members", "ok");
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  }
+
+  async function rejectApp(id){
+    if(!confirm("Reject this application?")) return;
+    try{
+      await updateDoc(doc(db,"applications", id), { status:"rejected", reviewedAt: serverTimestamp() });
+      toast(msg, "✅ Rejected", "ok");
+    }catch(e){ toast(msg,e.message,"bad"); }
+  }
+
+  async function boot(){
+    openTab("overview");
+    watchKPIs();
+
+    await loadHome();
+    await loadRules();
+    await loadContact();
+
+    resetAct();
+    resetMember();
+    resetAnn();
+
+    watchActivities();
+    watchMembers();
+    watchAnnouncements();
+    watchApplications();
+  }
+</script>
+</body></html>
