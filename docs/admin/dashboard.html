@@ -620,9 +620,11 @@ el("vmSave").addEventListener("click", async ()=>{
       phone: el("vmPhone").value.trim(),
       role: position,                      // compatibility
       status: isActive ? "active":"inactive",
-      joinedDate: new Date().toISOString().slice(0,10),
       updatedAt: serverTimestamp()
     };
+
+    // নতুন entry তে joinedDate সেট করব, edit এ পুরনো তারিখ রাখব
+    if(!editingVmId) payload.joinedDate = new Date().toISOString().slice(0,10);
 
     const f = el("vmPhoto").files?.[0];
     if(f) payload.photoUrl = await uploadToCloudinary(f);
@@ -659,7 +661,7 @@ function watchVolunteers(){
         <td>${esc(x.name||"—")}</td>
         <td>${esc(x.position || x.role || "Volunteer")}</td>
         <td>${esc((x.yearFrom??"—")+"–"+(x.yearTo??"—"))}</td>
-        <td>${x.isActive ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
+        <td>${(x.isActive ?? (x.status==="active")) ? `<span class="badge ok">true</span>` : `<span class="badge bad">false</span>`}</td>
         <td><button class="btn" data-edit="${x.id}">Edit</button></td>
       </tr>
     `).join("") || `<tr><td colspan="6" class="muted">No volunteer members</td></tr>`;
@@ -708,7 +710,9 @@ function watchVolunteers(){
       }
 
       let sections = [];
-      try{ sections = JSON.parse(el("homeSections").value || "[]"); }catch{ sections = []; }
+      try{ sections = JSON.parse(el("homeSections").value || "[]"); }catch{
+        toast(msg, "⚠️ Sections JSON invalid — ঠিক করুন তারপর save করুন", "bad"); return;
+      }
 
       const payload = {
         title: el("homeTitle").value.trim(),
@@ -1087,9 +1091,13 @@ function watchVolunteers(){
     resetAct();
     resetMember();
     resetAnn();
+    cmReset();
+    vmReset();
 
     watchActivities();
     watchMembers();
+    watchCommittee();
+    watchVolunteers();
     watchAnnouncements();
     watchApplications();
   }
