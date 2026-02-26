@@ -79,7 +79,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-  import { FIREBASE_CONFIG, uploadToCloudinary, toast } from "../assets/app.js";
+  import { FIREBASE_CONFIG, uploadToCloudinary, toast } from "./assets/app.js";
 
   const app = initializeApp(FIREBASE_CONFIG);
   const db = getFirestore(app);
