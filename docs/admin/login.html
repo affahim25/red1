@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="../assets/app.css"/>
+</head>
+<body>
+<div class="container" style="max-width:520px;">
+  <div class="card">
+    <div class="brand" style="margin-bottom:12px;">
+      <div class="logo"></div>
+      <div>
+        <h1>Admin Panel</h1>
+        <p class="muted">Login (Firebase Auth)</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="admin@email.com" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="pass" type="password" placeholder="********" />
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn primary" id="login">Login</button>
+      <button class="btn" id="signup">Create Account</button>
+      <a class="btn" href="../public/index.html">Public Site</a>
+    </div>
+
+    <div id="msg" class="card hidden" style="margin-top:12px; background: rgba(255,255,255,.03)"></div>
+
+    <div class="hr"></div>
+    <div class="small muted">
+      <b>Important:</b> প্রথমবার Create Account দিলে, তারপর আপনার UID কে Firestore-এর <code>admins/{uid}</code> ডকুমেন্ট হিসেবে সেট করতে হবে।
+      <br/> তারপরেই Dashboard access হবে।
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { FIREBASE_CONFIG, toast } from "../assets/app.js";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const el = (id)=>document.getElementById(id);
+  const msg = el("msg");
+
+  async function goIfAdmin(user){
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    if(!adminDoc.exists()){
+      toast(msg, "❌ আপনি admin নন। Firestore → admins collection এ আপনার UID যোগ করুন।", "bad");
+      return;
+    }
+    location.href = "dashboard.html";
+  }
+
+  el("login").addEventListener("click", async ()=>{
+    try{
+      const email = el("email").value.trim();
+      const pass = el("pass").value;
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      await goIfAdmin(cred.user);
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+
+  el("signup").addEventListener("click", async ()=>{
+    try{
+      const email = el("email").value.trim();
+      const pass = el("pass").value;
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      toast(msg, "✅ Account created! এখন admins/{uid} যোগ করে আবার Login করুন।", "ok");
+      console.log("UID:", cred.user.uid);
+    }catch(e){
+      toast(msg, e.message, "bad");
+    }
+  });
+</script>
+</body></html>
