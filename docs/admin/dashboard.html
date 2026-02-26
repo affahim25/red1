@@ -59,6 +59,8 @@
     <button class="navbtn" data-tab="home">🧩 Home Page</button>
     <button class="navbtn" data-tab="activities">📌 কার্যক্রম</button>
     <button class="navbtn" data-tab="members">👥 সদস্য</button>
+    <button class="navbtn" data-tab="committee">🏛️ Committee (15)</button>
+    <button class="navbtn" data-tab="volunteers">🙋 Volunteer Members</button>
     <button class="navbtn" data-tab="rules">📜 নিয়মাবলী</button>
     <button class="navbtn" data-tab="contact">☎️ Contact</button>
     <button class="navbtn" data-tab="ann">🔔 Announcements</button>
@@ -225,6 +227,119 @@
         </div>
       </div>
     </section>
+
+    <section id="tab_committee" class="row hidden">
+  <div class="card col-12">
+    <h3>Committee Manager (Firestore: committee)</h3>
+
+    <div class="grid2">
+      <div>
+        <div class="field"><label>Unit Type</label>
+          <select id="cmUnit">
+            <option value="upazila">Upazila</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Position</label>
+          <select id="cmPos">
+            <option>Leader</option>
+            <option>Assistant Leader</option>
+            <option>Department Chief</option>
+            <option>Department Assistant</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Department (optional)</label><input id="cmDept" placeholder="Health / Rescue / ..."/></div>
+        <div class="field"><label>Name</label><input id="cmName"/></div>
+
+        <div class="grid2">
+          <div class="field"><label>Year From</label><input id="cmFrom" type="number" value="2026"/></div>
+          <div class="field"><label>Year To</label><input id="cmTo" type="number" value="2026"/></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label>Active</label>
+            <select id="cmActive">
+              <option value="true">true (Current)</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+          <div class="field"><label>Order</label><input id="cmOrder" type="number" value="1"/></div>
+        </div>
+
+        <div class="field"><label>Photo (optional)</label><input id="cmPhoto" type="file" accept="image/*"/></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="cmSave">Save</button>
+          <button class="btn" id="cmReset">Reset</button>
+          <button class="btn danger hidden" id="cmDelete">Delete</button>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">Editing ID: <span id="cmId">—</span></div>
+      </div>
+
+      <div style="overflow:auto;">
+        <table>
+          <thead><tr><th>Photo</th><th>Name</th><th>Position</th><th>Years</th><th>Active</th><th>Order</th><th>Action</th></tr></thead>
+          <tbody id="cmTbody"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <section id="tab_volunteers" class="row hidden">
+  <div class="card col-12">
+    <h3>Volunteer Members Manager (Firestore: members)</h3>
+    <p class="muted small">এটা তোমার existing “সদস্য” tab বদলাবে না—এখান থেকে year/active/unit সহ নতুনভাবে ম্যানেজ হবে।</p>
+
+    <div class="grid2">
+      <div>
+        <div class="field"><label>Unit Type</label>
+          <select id="vmUnit">
+            <option value="upazila">Upazila</option>
+            <option value="school">School</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Position</label><input id="vmPos" value="Volunteer"/></div>
+        <div class="field"><label>Name</label><input id="vmName"/></div>
+        <div class="field"><label>Phone (optional)</label><input id="vmPhone"/></div>
+
+        <div class="grid2">
+          <div class="field"><label>Year From</label><input id="vmFrom" type="number" value="2026"/></div>
+          <div class="field"><label>Year To</label><input id="vmTo" type="number" value="2026"/></div>
+        </div>
+
+        <div class="field"><label>Active</label>
+          <select id="vmActive">
+            <option value="true">true (Current)</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+
+        <div class="field"><label>Photo (optional)</label><input id="vmPhoto" type="file" accept="image/*"/></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="vmSave">Save</button>
+          <button class="btn" id="vmReset">Reset</button>
+          <button class="btn danger hidden" id="vmDelete">Delete</button>
+        </div>
+
+        <div class="small muted" style="margin-top:10px;">Editing ID: <span id="vmId">—</span></div>
+      </div>
+
+      <div style="overflow:auto;">
+        <table>
+          <thead><tr><th>Photo</th><th>Name</th><th>Position</th><th>Years</th><th>Active</th><th>Action</th></tr></thead>
+          <tbody id="vmTbody"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
 
     <!-- RULES -->
     <section id="tab_rules" class="row hidden">
