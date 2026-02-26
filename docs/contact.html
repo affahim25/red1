@@ -67,12 +67,24 @@
     <div><b>Address:</b> ${esc(data.address || "—")}</div>
   `;
 
-  const mapBox = document.getElementById("mapBox");
-  if(data.mapUrl){
-    mapBox.innerHTML = `<iframe src="${data.mapUrl}" style="width:100%; height:320px; border:1px solid var(--border); border-radius:14px"></iframe>`;
-  }else{
-    mapBox.textContent = "Map URL not set.";
-  }
+const mapBox = document.getElementById("mapBox");
+
+if (data.mapUrl) {
+  mapBox.innerHTML = `
+    <div class="mapWrap">
+      <iframe
+        class="mapFrame"
+        src="${data.mapUrl}"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Location Map"
+      ></iframe>
+    </div>
+  `;
+} else {
+  mapBox.textContent = "Map URL not set.";
+}
 </script>
   <div class="footer">© <span id="year"></span> Red Crescent Araihazar Unit</div>
 </div>
