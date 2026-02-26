@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Announcements | Red Crescent Araihazar Unit</title>
+  <link rel="stylesheet" href="assets/app.css"/>
+  <style>
+    .ann-header { text-align: center; padding: 32px 16px 16px; }
+    .ann-header h2 { font-size: 28px; font-weight: 900; letter-spacing: 1px; margin: 0 0 6px; }
+    .ann-header .bell { font-size: 36px; display: block; margin-bottom: 10px; }
+    .ann-divider { height: 2px; width: 60px; background: rgba(45,212,191,.6); margin: 0 auto 24px; border-radius: 99px; }
+    .search-wrap { max-width: 480px; margin: 0 auto 24px; }
+    .search-wrap input { width: 100%; box-sizing: border-box; }
+    .ann-card { position: relative; overflow: hidden; }
+    .ann-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: rgba(45,212,191,.7); border-radius: 3px 0 0 3px; }
+    .ann-card.inactive::before { background: rgba(255,255,255,.2); }
+    .ann-card.inactive { opacity: 0.45; }
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar { flex-shrink: 0; }
+    .container { flex: 1; display: flex; flex-direction: column; }
+    .card { flex: 1; }
+  </style>
+  
+</head>
+<body>
+<div class="topbar">
+  <div class="nav">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <h1 id="siteName">Red Crescent Araihazar Unit</h1>
+        <p id="siteTag" class="muted">Public Website</p>
+      </div>
+    </div>
+    <div class="menu">
+      <a class="pill" href="index.html">Home</a>
+      <a class="pill" href="activities.html">কার্যক্রম</a>
+      <a class="pill" href="members.html">সদস্য</a>
+      <a class="pill" href="rules.html">নিয়মাবলী</a>
+      <a class="pill" href="apply.html">নতুন ভলান্টিয়ার</a>
+      <a class="pill" href="contact.html">Contact</a>
+      <a class="pill" href="announcements.html">🔔 Announcement</a>
+     <a class="pill" href="admin/login.html">Admin</a>
+    </div>
+  </div>
+</div>
+<div class="container">
+
+  <div class="card">
+    <div class="ann-header">
+      <span class="bell">🔔</span>
+      <h2>Announcements</h2>
+    </div>
+    <div class="ann-divider"></div>
+
+    <div class="search-wrap">
+      <div class="field" style="margin:0">
+        <input id="q" placeholder="🔍  নোটিশ খুঁজুন..." />
+      </div>
+    </div>
+
+    <div id="list" class="row"></div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { FIREBASE_CONFIG, esc, fmtDate } from "./assets/app.js";
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db = getFirestore(app);
+
+  const listEl = document.getElementById("list");
+  const qEl = document.getElementById("q");
+  let all = [];
+
+  function badgeActive(v){
+    return `<span class="badge ${v? "ok":"bad"}">${v? "Active":"Inactive"}</span>`;
+  }
+
+  function render(){
+    const q = (qEl.value||"").trim().toLowerCase();
+    const items = q ? all.filter(a =>
+      (a.title||"").toLowerCase().includes(q) ||
+      (a.body||"").toLowerCase().includes(q)
+    ) : all;
+    listEl.innerHTML = items.map(a => `
+      <div class="card col-6 ann-card ${a.isActive ? '' : 'inactive'}">
+        <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+          <div style="font-weight:850; padding-left:8px;">${esc(a.title || "—")}</div>
+          ${badgeActive(!!a.isActive)}
+        </div>
+        <div class="muted small" style="margin-top:8px; white-space:pre-wrap; padding-left:8px;">${esc(a.body||"")}</div>
+        <div class="small muted" style="margin-top:10px; padding-left:8px;">📅 ${fmtDate(a.date)}</div>
+      </div>
+    `).join("") || `<div class="muted" style="text-align:center; padding:24px;">কোনো নোটিশ নেই।</div>`;
+  }
+
+  qEl.addEventListener("input", render);
+
+  const q1 = query(collection(db,"announcements"), orderBy("date","desc"));
+  onSnapshot(q1, (snap)=>{
+    console.log("Announcements loaded:", snap.size, "docs");
+    all = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    render();
+  }, (err)=>{
+    console.error("Firestore error:", err);
+    listEl.innerHTML = `<div class="muted" style="text-align:center; padding:24px; width:100%;">⚠️ Data load error: ${err.message}</div>`;
+  });
+</script>
+  <div class="footer" style="margin-top:32px; text-align:center; padding:20px 0; border-top:1px solid var(--border); opacity:.6; font-size:13px;">© <span id="year"></span> Red Crescent Araihazar Unit</div>
+</div>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body></html>
