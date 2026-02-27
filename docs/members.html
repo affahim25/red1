@@ -129,7 +129,7 @@
 
         <!-- Assistant Leader: 3-col, pos 1 & 3 filled, pos 2 empty -->
         <div id="secAL" class="sec" style="display:none;">
-          <div class="secTitle">Deputy Youth Leader</div>
+          <div class="secTitle">DEPUTY YOUTH LEADER</div>
           <div class="divider"></div>
           <div class="grid-al" id="gAL"></div>
         </div>
@@ -143,7 +143,7 @@
 
         <!-- Department Assistant: 6 per row -->
         <div id="secAsst" class="sec" style="display:none;">
-          <div class="secTitle">DEPARTMENT ASSISTANT</div>
+          <div class="secTitle">DEPARTMENT DEPUTY CHIEF</div>
           <div class="divider"></div>
           <div class="grid-6" id="gAsst"></div>
         </div>
@@ -203,7 +203,7 @@
       ? `<img src="${esc(p.photoUrl)}" alt="">`
       : `<span>${first}</span>`;
     const showDept = p.department &&
-      (p.position === "Department Chief" || p.position === "Department Assistant");
+      (p.position === "Department Chief" || p.position === "Department deputy Chief");
     return `
       <div class="card">
         <div class="avatar">${img}</div>
@@ -241,9 +241,9 @@
     mem = applyFilters(mem);
 
     const leader = com.filter(x => x.position === "Leader");
-    const al     = com.filter(x => x.position === "Assistant Leader");
+    const al     = com.filter(x => x.position === "Deputy Youth Leader");
     const chief  = com.filter(x => x.position === "Department Chief");
-    const asst   = com.filter(x => x.position === "Department Assistant");
+    const asst   = com.filter(x => x.position === "Department Deputy Chief");
 
     // clear grids
     gLeader.innerHTML = "";
