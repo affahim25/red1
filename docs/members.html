@@ -186,6 +186,7 @@
 
   const gLeader  = document.getElementById("gLeader");
   const gAL      = document.getElementById("gAL");
+  const gAL2     = document.getElementById("gAL2");
   const gChief   = document.getElementById("gChief");
   const gAsst    = document.getElementById("gAsst");
   const gMembers = document.getElementById("gMembers");
@@ -241,7 +242,8 @@
     mem = applyFilters(mem);
 
     const leader = com.filter(x => x.position === "Leader");
-    const al     = com.filter(x => x.position === "Deputy Youth Leader");
+    const al     = com.filter(x => x.position === "Deputy Youth Leader 1");
+    const al2     = com.filter(x => x.position === "Deputy Youth Leader 2");
     const chief  = com.filter(x => x.position === "Department Chief");
     const asst   = com.filter(x => x.position === "Department Deputy Chief");
 
