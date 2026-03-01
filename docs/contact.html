@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Contact | Bangladesh Red Crescent Society</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0b1220;
+      --card:   rgba(16,26,46,.85);
+      --card2:  rgba(255,255,255,.03);
+      --text:   #e8eefc;
+      --muted:  #7a92c0;
+      --red:    #e8192c;
+      --red2:   #ff4d5e;
+      --border: rgba(255,255,255,.09);
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --r:      16px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Hind Siliguri', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,14,26,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1140px; margin: 0 auto;
+      padding: 10px 20px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .logo-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #fff; border: 2px solid rgba(232,25,44,.5);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .logo-circle svg { width: 34px; height: 34px; }
+    .brand-text h1 { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .brand-text p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .menu { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .menu a {
+      font-size: 12px; padding: 6px 12px;
+      border-radius: 999px; border: 1px solid var(--border);
+      color: var(--muted); background: var(--card2);
+      white-space: nowrap; transition: .15s;
+    }
+    .menu a:hover, .menu a.active { color: #fff; border-color: rgba(232,25,44,.5); background: rgba(232,25,44,.1); }
+    .menu a.bell { color: var(--red2); border-color: rgba(232,25,44,.3); }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 1140px; margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    /* ── SECTION HEADING ── */
+    .section-head {
+      text-align: center; margin-bottom: 32px;
+    }
+    .section-head h2 {
+      font-size: 28px; font-weight: 700; color: #fff;
+      display: inline-block;
+      border-bottom: 3px solid var(--red);
+      padding-bottom: 6px; margin-bottom: 12px;
+    }
+    .section-head p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    /* ── TWO COLUMN GRID ── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 760px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .menu a:not(.bell):not(.active) { display: none; }
+    }
+
+    /* ── LEFT: INFO + MAP ── */
+    .info-col {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .info-card h3 {
+      font-size: 15px; font-weight: 700; color: var(--red2);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .info-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .info-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .info-val { color: var(--text); margin-top: 2px; font-size: 14px; }
+    .info-val a { color: var(--red2); }
+    .info-val a:hover { text-decoration: underline; }
+
+    /* map */
+    .map-wrap {
+      border-radius: var(--r);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      background: #0d1a30;
+      min-height: 280px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 13px;
+    }
+    .map-wrap iframe {
+      width: 100%; height: 280px; border: 0; display: block;
+    }
+
+    /* ── RIGHT: CONTACT FORM ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+    }
+    .form-card h3 {
+      font-size: 17px; font-weight: 700; color: #fff;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .form-card h3 span { color: var(--red2); }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field label { font-size: 12px; font-weight: 700; color: var(--muted); }
+    .field input, .field textarea {
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: rgba(232,25,44,.5);
+      background: rgba(232,25,44,.04);
+    }
+    .field textarea { min-height: 120px; resize: vertical; }
+    .field input::placeholder, .field textarea::placeholder { color: var(--muted); opacity: .6; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: var(--red);
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+      margin-top: 4px;
+    }
+    .submit-btn:hover { background: var(--red2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,25,44,.35); }
+    .submit-btn:active { transform: none; }
+
+    .form-note {
+      margin-top: 12px;
+      font-size: 12px; color: var(--muted);
+      text-align: center;
+    }
+
+    /* skeleton */
+    @keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+    .sk {
+      border-radius: 8px;
+      background: linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.05) 75%);
+      background-size: 600px 100%; animation: shimmer 1.4s infinite;
+    }
+
+    /* footer */
+    .footer { text-align: center; font-size: 12px; color: var(--muted); padding: 18px 0 8px; border-top: 1px solid var(--border); margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <nav class="nav">
+    <div class="brand">
+      <div class="logo-circle">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="20" fill="white" stroke="#e8192c" stroke-width="1.5"/>
+          <path d="M17.5 15C14 16 10.5 20 10.5 24.5C10.5 30 14.5 34.5 19 35.5C16 32.5 15 28 17 24C18.5 21 21 18.5 24 18C21.5 16.5 19.5 14.5 17.5 15Z" fill="#E8192C"/>
+          <path d="M28 13.5C25 13 22.5 14.5 20.5 16.5C23 17 25.5 19 27 21.5C28.5 24 29 27 27.5 30C30.5 27.5 32 24 31.5 20C31 17 29.5 14.5 28 13.5Z" fill="#E8192C"/>
+          <circle cx="32" cy="12.5" r="4" fill="#E8192C"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1 id="siteName">Bangladesh Red Crescent Society</h1>
+        <p  id="siteTag">Araihazar Upazila, Narayanaganj Unit</p>
+      </div>
+    </div>
+    <div class="menu">
+      <a href="index.html">Home</a>
+      <a href="activities.html">কার্যক্রম</a>
+      <a href="members.html">সদস্য</a>
+      <a href="rules.html">নিয়মাবলী</a>
+      <a href="apply.html">ভলান্টিয়ার</a>
+      <a href="contact.html" class="active">Contact</a>
+      <a href="announcements.html" class="bell">🔔 Announcement</a>
+      <a href="admin/login.html">Admin</a>
+    </div>
+  </nav>
+</header>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- heading -->
+  <div class="section-head">
+    <h2>যোগাযোগ করুন</h2>
+    <p>আপনার যেকোনো প্রশ্ন, মতামত বা পরামর্শ আমাদের জানাতে পারেন।<br>
+    আমরা দ্রুত উত্তর দেওয়ার চেষ্টা করব। আপনার তথ্য সম্পূর্ণ গোপন রাখা হবে।</p>
+  </div>
+
+  <div class="contact-grid">
+
+    <!-- LEFT: info + map -->
+    <div class="info-col">
+
+      <div class="info-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          যোগাযোগের তথ্য
+        </h3>
+
+        <div class="info-row">
+          <div class="info-icon">📍</div>
+          <div>
+            <div class="info-label">ঠিকানা</div>
+            <div class="info-val" id="infoAddress"><div class="sk" style="height:14px;width:180px;"></div></div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">📞</div>
+          <div>
+            <div class="info-label">ফোন / WhatsApp</div>
+            <div class="info-val" id="infoPhone"><div class="sk" style="height:14px;width:120px;"></div></div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon">📧</div>
+          <div>
+            <div class="info-label">ইমেইল</div>
+            <div class="info-val" id="infoEmail"><div class="sk" style="height:14px;width:160px;"></div></div>
+          </div>
+        </div>
+
+        <div class="info-row" id="fbRow" style="display:none;">
+          <div class="info-icon">🔵</div>
+          <div>
+            <div class="info-label">Facebook Page</div>
+            <div class="info-val" id="infoFacebook">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="map-wrap" id="mapBox">
+        <span>Map লোড হচ্ছে…</span>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: form -->
+    <div class="form-card">
+      <h3>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>বার্তা পাঠান</span>
+      </h3>
+
+      <form id="contactForm" method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_subject" value="New Contact from Red Crescent Website">
+
+        <div class="field">
+          <label>আপনার নাম</label>
+          <input name="name" type="text" placeholder="পূর্ণ নাম লিখুন" required />
+        </div>
+
+        <div class="field">
+          <label>ইমেইল ঠিকানা</label>
+          <input name="email" type="email" placeholder="example@gmail.com" required />
+        </div>
+
+        <div class="field">
+          <label>ফোন নম্বর (optional)</label>
+          <input name="phone" type="tel" placeholder="01XXXXXXXXX" />
+        </div>
+
+        <div class="field">
+          <label>বার্তা</label>
+          <textarea name="message" placeholder="আপনার প্রশ্ন বা বার্তা লিখুন…" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          📨 বার্তা পাঠান
+        </button>
+      </form>
+
+      <div class="form-note">
+        ✅ বার্তা পাঠানোর পর আপনার ইমেইলে কনফার্মেশন চলে আসবে।
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  © <span id="year"></span> Bangladesh Red Crescent Society, Araihazar Upazila
+</footer>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyClV5jh7eS9DTUBUjcA1ruXMnilhYH_o88",
+    authDomain: "red-cresent-109b0.firebaseapp.com",
+    projectId: "red-cresent-109b0",
+    storageBucket: "red-cresent-109b0.firebasestorage.app",
+    messagingSenderId: "901836433483",
+    appId: "1:901836433483:web:c1acf1b92adff45de9c5ce"
+  };
+
+  function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db  = getFirestore(app);
+
+  // ── Load contact info ──
+  const snap = await getDoc(doc(db, "site", "contact"));
+  const data = snap.exists() ? snap.data() : {};
+
+  // address
+  const addrEl = document.getElementById("infoAddress");
+  addrEl.textContent = data.address || "আরাইহাজার উপজেলা, নারায়ণগঞ্জ";
+
+  // phone
+  const phoneEl = document.getElementById("infoPhone");
+  if(data.phone){
+    phoneEl.innerHTML = `<a href="https://wa.me/88${data.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--red2);">${esc(data.phone)}</a> <span style="font-size:11px;color:var(--muted);">(WhatsApp)</span>`;
+  } else {
+    phoneEl.textContent = "—";
+  }
+
+  // email
+  const emailEl = document.getElementById("infoEmail");
+  if(data.email){
+    emailEl.innerHTML = `<a href="mailto:${esc(data.email)}" style="color:var(--red2);">${esc(data.email)}</a>`;
+  } else {
+    emailEl.textContent = "—";
+  }
+
+  // facebook
+  if(data.facebook){
+    const fbRow = document.getElementById("fbRow");
+    const fbEl  = document.getElementById("infoFacebook");
+    fbRow.style.display = "flex";
+    fbEl.innerHTML = `<a href="${esc(data.facebook)}" target="_blank" style="color:var(--red2);">Facebook Page ↗</a>`;
+  }
+
+  // form action — use dashboard formEmail or fallback
+  const formEl = document.getElementById("contactForm");
+  const formTarget = data.formEmail || "mdrownokjamanrahul@gmail.com";
+  formEl.action = `https://formsubmit.co/${formTarget}`;
+  // add hidden fields
+  formEl.insertAdjacentHTML("afterbegin", `
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_subject" value="New Contact from Red Crescent Website">
+  `);
+
+  // map
+  const mapBox = document.getElementById("mapBox");
+  const mapUrl = data.mapUrl || "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d580.0018978588843!2d90.65950741971962!3d23.788494200546996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sbd!4v1752920989243!5m2!1sen!2sbd";
+  // Use createElement to avoid any string encoding issues
+  const iframe = document.createElement("iframe");
+  iframe.src = mapUrl;
+  iframe.width = "100%";
+  iframe.height = "280";
+  iframe.style.cssText = "border:0;display:block;";
+  iframe.allowFullscreen = true;
+  iframe.loading = "lazy";
+  iframe.referrerPolicy = "no-referrer-when-downgrade";
+  iframe.title = "Location Map";
+  mapBox.innerHTML = "";
+  mapBox.appendChild(iframe);
+
+  // ── Load site name from home ──
+  const homeSnap = await getDoc(doc(db, "site", "home"));
+  if(homeSnap.exists()){
+    const hd = homeSnap.data();
+    if(hd.title)    document.getElementById("siteName").textContent = hd.title;
+    if(hd.subtitle) document.getElementById("siteTag").textContent  = hd.subtitle;
+    if(hd.logoUrl){
+      const lc = document.querySelector(".logo-circle");
+      if(lc) lc.innerHTML = `<img src="${hd.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }
+  }
+</script>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
